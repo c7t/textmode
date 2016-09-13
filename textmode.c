@@ -1,19 +1,12 @@
-/* We have to define _BSD_SOURCE before we include any headers so that
-   we get cfmakeraw().  "man termios" tells us about that in the
-   "CONFORMING TO" section. */
 #define _BSD_SOURCE 1
-/* We have to define _POSIX_SOURCE to get fileno(), similar to
-   above */
 #define _POSIX_SOURCE 1
 #include <stdio.h>
 #include <stdbool.h>
-/* We need termios.h and unistd.h for tcgetattr and tcsetattr and
-   cfmakeraw which are all used for UNIX-y unbuffered input, which we
-   need so we don't have to press Enter after each keystroke.  */
 #include <termios.h>
 #include <unistd.h>
-/* Need string.h for memset and for memcpy */
 #include <string.h>
+/* Need select() call below */
+#include <sys/select.h>
 
 int term_set_raw(int fd, struct termios *term) {
   struct termios raw;
@@ -22,8 +15,6 @@ int term_set_raw(int fd, struct termios *term) {
   if (tcgetattr(fd, term) != 0)
     return -1;
   
-  /* Take the setting we got as a starting point, we'll use cfmakeraw
-     to make them raw */
   memcpy(&raw, term, sizeof(raw));
   cfmakeraw(&raw);
 
@@ -44,30 +35,54 @@ int main(int argc, char **argv) {
   setbuf(stdin, NULL);
   setbuf(stdout, NULL);
 
-  /* Tell the kernel we want unbuffered input and output */
   struct termios in_term, out_term;
   term_set_raw(fileno(stdin), &in_term);
   term_set_raw(fileno(stdout), &out_term);
 
+  /* Now we have to initialize ch to something, because we're going
+     to go ahead and print something, even if the user never pressed
+     a key. (Before we always blocked (waited forever) in getchar()
+     waiting for them to press something.) */
+  int ch = 0;
+
   while (true) {
-    int ch = getchar();
-    /* now that we're printing in raw mode, '\n' (newline) doesn't get
-       converted to '\n\r' (newline followed by carriage return).  So
-       our virtual typewriter doesn't go back to the left margin if we
-       leave out the '\r' */
+    fd_set rfds;
+    struct timeval tv;
+    int retval;
+
+    /* Watch stdin (fd 0) to see when it has input. */
+    FD_ZERO(&rfds);
+    FD_SET(fileno(stdin), &rfds);
+
+    /* 60 FPS is 1,000,000 microseconds (or one second) / 60, this
+       isn't quite correct, as we'll have used up some of our frame
+       time computing in this loop and writing output, but we can
+       correct that later.  Right now we just don't want to wait too
+       long for input to come in. */
+    tv.tv_sec = 0;
+    tv.tv_usec = 1000000 / 60;
+
+    /* Select basically says: wait for a maximum timeout for some data
+       to become ready on the file descriptors that I specify.  Here
+       we use it only to look for input on stdin. */
+    retval = select(1, &rfds, NULL, NULL, &tv);
+    /* Don't rely on the value of tv now! */
+
+    if (retval == -1)
+      perror("select()");
+    else if (retval) {
+      /* FD_ISSET(0, &rfds) will be true. This means we can "safely"
+	 call getchar() and it will return immediately with the
+	 character that was pressed, it won't block. */
+      ch = getchar();
+    } /* else no key was pressed, we continue to "render" (in this
+	 case just print the last character received again */
+
     printf("%d: %d %c\r\n", i, ch, ch);
     if (ch == 'q')
       break;
   }
 
-  /* Piece of wackiness: stdin and stdout are probably connected to
-     the same "terminal" so we have to set these in the reverse order
-     that we retrieved them, in case our second retrieval above got
-     the settings from after we set raw mode.  If that were the case
-     (and it seems to be the case) then we would just be restoring our
-     setting of the raw mode.  I'm just putting all this down, but
-     it's mostly UNIX trivia that no-one cares about as long as it
-     works. */
   term_restore(fileno(stdout), &out_term);
   term_restore(fileno(stdin), &in_term);
   return 0;
