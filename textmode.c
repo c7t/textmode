@@ -77,6 +77,9 @@ int main(int argc, char **argv) {
   print(clear);
   print(civis);
 
+  int row = 1, col = 1;
+  int sx = 1, sy = 1;
+
   while (true) {
     struct timeval tv;
     tv.tv_sec = 0;
@@ -85,21 +88,20 @@ int main(int argc, char **argv) {
     bool key_pressed = get_char(&ch, &tv);
 
     if (key_pressed) {
-      moveto(9, 20);
-      printf("pressed!");
-    } else {
-      moveto(9, 20);
-      /* No key pressed, print some spaces to overwrite last
-	 "pressed!" */
-      printf("        ");
+      switch (ch) {
+      case 'w': sx = 0; sy = -1; break;
+      case 'a': sx = -1; sy = 0; break;
+      case 's': sx = 0; sy = 1; break;
+      case 'd': sx = 1; sy = 0; break;
+      }
     }
 
-    /* Print status at 10, 20 */
-    moveto(10, 20);
-    /* Notice that we don't print the "\r\n" anymore, we're directly
-       driving the cursor around, no need to ask the typewriter to go
-       to the next line, or back to the left margin */
-    printf("%d: %d %c", i, ch, ch);
+    moveto(row, col);
+    print("#");
+
+    row += sy;
+    col += sx;
+
     if (ch == 'q')
       break;
   }
