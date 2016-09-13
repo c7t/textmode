@@ -97,10 +97,19 @@ int main(int argc, char **argv) {
     }
 
     moveto(row, col);
-    print("#");
+    print(" ");
 
     row += sy;
     col += sx;
+
+    /* Bad! Collision detection! */
+    if (1 >= row || row >= 60)
+      sy = 0;
+    if (1 >= col || col >= 80)
+      sx = 0;
+
+    moveto(row, col);
+    print("#");
 
     if (ch == 'q')
       break;
