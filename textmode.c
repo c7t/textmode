@@ -102,11 +102,15 @@ int main(int argc, char **argv) {
     row += sy;
     col += sx;
 
-    /* Bad! Collision detection! */
-    if (1 >= row || row >= 60)
+    /* Collision detection! */
+    if (!(1 <= row && row <= 25)) {
+      row -= sy;
       sy = 0;
-    if (1 >= col || col >= 80)
+    }
+    if (!(1 <= col && col <= 80)) {
+      col -= sx;
       sx = 0;
+    }
 
     moveto(row, col);
     print("#");
