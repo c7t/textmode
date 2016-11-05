@@ -11,12 +11,27 @@ const char *clear = "\x1b[H\x1b[2J";
 const char *civis = "\033[?25l";
 const char *cnorm = "\033[?12l\033[?25h";
 
+const char *level =
+  "+-------------+"
+  "|  *          |"
+  "|         O   |"
+  "| .           |"
+  "|        +    |"
+  "|             |"
+  "+-------------+";
+int level_width = 15;
+int level_height = 7;
+
 void moveto(int row, int col) {
-  printf("\033[%d;%dH", row, col);
+  printf("\033[%d;%dH", row+1, col+1);
 }
 
 void print(const char *str) {
   fputs(str, stdout);
+}
+
+void printn(const char *str, size_t n) {
+  fwrite(str, n, 1, stdout);
 }
 
 int term_set_raw(int fd, struct termios *term) {
@@ -77,13 +92,31 @@ int main(int argc, char **argv) {
   print(clear);
   print(civis);
 
-  int row = 1, col = 1;
+#if 0
+  for (int row = 0; row < 10; row++) {
+    for (int col = 0; col < 10; col++) {
+      moveto(row, 10);
+      printf("%d", row);
+      moveto(10, col);
+      printf("%d", col);
+    }
+  }
+
+  goto cleanup;
+#endif
+
+  for (int row = 0; row < level_height; row++) {
+    moveto(row, 0);
+    printn(level + row * level_width, level_width);
+  }
+
+  int row = level_height / 2, col =  level_width / 2;
   int sx = 1, sy = 1;
 
   while (true) {
     struct timeval tv;
     tv.tv_sec = 0;
-    tv.tv_usec = 1000000 / 60; /* 60 FPS */
+    tv.tv_usec = 1000000 / 15; /* 15 FPS */
 
     bool key_pressed = get_char(&ch, &tv);
 
@@ -103,11 +136,9 @@ int main(int argc, char **argv) {
     col += sx;
 
     /* Collision detection! */
-    if (!(1 <= row && row <= 25)) {
+    if (level[row * level_width + col] != ' ') {
       row -= sy;
       sy = 0;
-    }
-    if (!(1 <= col && col <= 80)) {
       col -= sx;
       sx = 0;
     }
