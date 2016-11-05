@@ -110,8 +110,8 @@ int main(int argc, char **argv) {
     printn(level + row * level_width, level_width);
   }
 
-  int row = level_height / 2, col =  level_width / 2;
-  int sx = 1, sy = 1;
+  int row = (level_height / 2) << 1, col =  (level_width / 2) << 1;
+  int sx = 2, sy = 1;
 
   while (true) {
     struct timeval tv;
@@ -123,27 +123,27 @@ int main(int argc, char **argv) {
     if (key_pressed) {
       switch (ch) {
       case 'w': sx = 0; sy = -1; break;
-      case 'a': sx = -1; sy = 0; break;
+      case 'a': sx = -2; sy = 0; break;
       case 's': sx = 0; sy = 1; break;
-      case 'd': sx = 1; sy = 0; break;
+      case 'd': sx = 2; sy = 0; break;
       }
     }
 
-    moveto(row, col);
+    moveto(row >> 1, col >> 1);
     print(" ");
 
     row += sy;
     col += sx;
 
     /* Collision detection! */
-    if (level[row * level_width + col] != ' ') {
+    if (level[(row >> 1) * level_width + (col >> 1)] != ' ') {
       row -= sy;
       sy = 0;
       col -= sx;
       sx = 0;
     }
 
-    moveto(row, col);
+    moveto(row >> 1, col >> 1);
     print("#");
 
     if (ch == 'q')
