@@ -58,14 +58,19 @@ int term_restore(int fd, struct termios *term) {
 /* get_char() waits until timeout given by 'tv' for a key press.  If a
    key is pressed in time, the key is returned in 'ch' and get_char()
    returns true.  Otherwise get_char() returns false. */
-bool get_char(int *ch, struct timeval *tv) {
+bool get_char(int *ch, struct timeval tv) {
     fd_set rfds;
     int retval;
 
     FD_ZERO(&rfds);
     FD_SET(fileno(stdin), &rfds);
 
-    retval = select(1, &rfds, NULL, NULL, tv);
+    // first wait for the full specified time, ignoring input
+    retval = select(0, NULL, NULL, NULL, &tv);
+    // now poll for any input, without waiting
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    retval = select(1, &rfds, NULL, NULL, &tv);
 
     if (retval == -1)
       perror("select()");
@@ -105,7 +110,7 @@ int main(int argc, char **argv) {
     tv.tv_sec = 0;
     tv.tv_usec = 1000000 / 15; /* 15 FPS */
 
-    bool key_pressed = get_char(&ch, &tv);
+    bool key_pressed = get_char(&ch, tv);
 
     if (key_pressed) {
       switch (ch) {
