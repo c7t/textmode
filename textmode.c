@@ -124,8 +124,9 @@ int main(int argc, char **argv) {
       }
     }
 
+    // Erase protagonist by drawing level
     moveto(row >> 1, col >> 1);
-    print(" ");
+    fputc(level[(row >> 1) * level_width + (col >> 1)], stdout);
 
     row += sy;
     col += sx;
@@ -141,6 +142,8 @@ int main(int argc, char **argv) {
 	row <<= 1;
 	col <<= 1;
       } while (spawned_on != ' ');
+    } else if (bumped == '.') {
+      /* ignore '.' for now */
     } else if (bumped != ' ') {
       row -= sy;
       sy = 0;
