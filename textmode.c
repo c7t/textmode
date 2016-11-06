@@ -137,7 +137,9 @@ int main(int argc, char **argv) {
       do {
 	row = random() % level_height;
 	col = random() % level_width;
-	spawned_on = level[(row >> 1) * level_width + (col >> 1)];
+	spawned_on = level[row * level_width + col];
+	row <<= 1;
+	col <<= 1;
       } while (spawned_on != ' ');
     } else if (bumped != ' ') {
       row -= sy;
