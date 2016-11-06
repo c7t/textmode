@@ -92,19 +92,6 @@ int main(int argc, char **argv) {
   print(clear);
   print(civis);
 
-#if 0
-  for (int row = 0; row < 10; row++) {
-    for (int col = 0; col < 10; col++) {
-      moveto(row, 10);
-      printf("%d", row);
-      moveto(10, col);
-      printf("%d", col);
-    }
-  }
-
-  goto cleanup;
-#endif
-
   for (int row = 0; row < level_height; row++) {
     moveto(row, 0);
     printn(level + row * level_width, level_width);
