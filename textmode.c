@@ -2,6 +2,7 @@
 #define _POSIX_SOURCE 1
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
@@ -17,7 +18,7 @@ const char *level =
   "|         O   |"
   "| .           |"
   "|        +    |"
-  "|             |"
+  "|    ?        |"
   "+-------------+";
 int level_width = 15;
 int level_height = 7;
@@ -128,12 +129,20 @@ int main(int argc, char **argv) {
     col += sx;
 
     /* Collision detection! */
-    if (level[(row >> 1) * level_width + (col >> 1)] != ' ') {
+    char bumped = level[(row >> 1) * level_width + (col >> 1)];
+    if (bumped == '?') {
+      char spawned_on;
+      do {
+	row = random() % level_height;
+	col = random() % level_width;
+	spawned_on = level[(row >> 1) * level_width + (col >> 1)];
+      } while (spawned_on != ' ');
+    } else if (bumped != ' ') {
       row -= sy;
       sy = 0;
       col -= sx;
       sx = 0;
-    }
+    } /* else ' ', just keep walking */
 
     moveto(row >> 1, col >> 1);
     print("#");
