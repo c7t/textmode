@@ -13,14 +13,14 @@ const char *civis = "\033[?25l";
 const char *cnorm = "\033[?12l\033[?25h";
 
 const char *level =
-  "+-------------+"
-  "|  *          |"
-  "|         O   |"
-  "| .           |"
-  "|        +    |"
-  "|    ?        |"
-  "+-------------+";
-int level_width = 15;
+  "+-------------+-------------+"
+  "|  *          |             |"
+  "|         O   |             |"
+  "| .           |      ?      |"
+  "|        +    |             |"
+  "|    ?        |             |"
+  "+-------------+-------------+";
+int level_width = 29;
 int level_height = 7;
 
 void moveto(int row, int col) {
@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
     printn(level + row * level_width, level_width);
   }
 
-  int row = (level_height / 2) << 1, col =  (level_width / 2) << 1;
+  int row = (level_height / 2) << 1, col =  (level_width / 2 - 1) << 1;
   int sx = 2, sy = 1;
 
   int manimation = 0;
