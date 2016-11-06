@@ -106,6 +106,8 @@ int main(int argc, char **argv) {
   int row = (level_height / 2) << 1, col =  (level_width / 2) << 1;
   int sx = 2, sy = 1;
 
+  int manimation = 0;
+
   while (true) {
     struct timeval tv;
     tv.tv_sec = 0;
@@ -144,8 +146,10 @@ int main(int argc, char **argv) {
       sx = 0;
     } /* else ' ', just keep walking */
 
+    manimation ^= 1;
+
     moveto(row >> 1, col >> 1);
-    print("#");
+    print(manimation ? "C" : "c");
 
     if (ch == 'q')
       break;
