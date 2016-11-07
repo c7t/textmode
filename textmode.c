@@ -23,6 +23,12 @@ const char *level =
 int level_width = 29;
 int level_height = 7;
 
+int max_speed = 2;
+
+static inline int min(int a, int b) {
+  return a < b ? a : b;
+}
+
 void moveto(int row, int col) {
   printf("\033[%d;%dH", row+1, col+1);
 }
@@ -121,12 +127,16 @@ int main(int argc, char **argv) {
       case 'a': sx = -2; sy = 0; break;
       case 's': sx = 0; sy = 1; break;
       case 'd': sx = 2; sy = 0; break;
+      case ' ': sy = -4; break;
       }
     }
 
     // Erase protagonist by drawing level
     moveto(row >> 1, col >> 1);
     fputc(level[(row >> 1) * level_width + (col >> 1)], stdout);
+
+    // Gravity!
+    sy = min(sy+1, max_speed);
 
     row += sy;
     col += sx;
@@ -146,9 +156,24 @@ int main(int argc, char **argv) {
       /* ignore '.' for now */
     } else if (bumped != ' ') {
       row -= sy;
-      sy = 0;
       col -= sx;
-      sx = 0;
+      sy = 0;
+      row += sy;
+      col += sx;
+      bumped = level[(row >> 1) * level_width + (col >> 1)];
+      if (bumped != ' ') {
+	row -= sy;
+	col -= sx;
+	sx = 0;
+	row += sy;
+	col += sx;
+	bumped = level[(row >> 1) * level_width + (col >> 1)];
+	if (bumped != ' ') {
+	  row -= sy;
+	  col -= sx;
+	}	  
+      }
+      // sx = 0; sy = 0;
     } /* else ' ', just keep walking */
 
     manimation ^= 1;
@@ -166,3 +191,10 @@ int main(int argc, char **argv) {
   term_restore(fileno(stdin), &in_term);
   return 0;
 }
+
+/*
+
+ xX 
+--x---
+
+*/
