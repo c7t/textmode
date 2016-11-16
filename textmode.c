@@ -136,7 +136,22 @@ int main(int argc, char **argv) {
     fputc(level[(row >> 1) * level_width + (col >> 1)], stdout);
 
     // Gravity!
-    sy = min(sy+1, max_speed);
+    // standing is the character under the character (what the
+    // character is standing on)
+    char standing = level[((row >> 1) + 1) * level_width + (col >> 1)];
+    moveto(0, 30);
+    print("S: ");
+    fputc(standing, stdout);
+    switch (standing) {
+    case ' ': // unlike Wile E. Coyote, character cannot stand on air
+    case '?': // can fall into a teleporter
+    case '.': // go right through '.' even falling
+      // apply acceleration by incrementing velocity
+      sy = min(sy+1, max_speed);
+      break;
+    default: // everything else is solid, no gravity applied
+      break;
+    }
 
     row += sy;
     col += sx;
@@ -156,24 +171,9 @@ int main(int argc, char **argv) {
       /* ignore '.' for now */
     } else if (bumped != ' ') {
       row -= sy;
-      col -= sx;
       sy = 0;
-      row += sy;
-      col += sx;
-      bumped = level[(row >> 1) * level_width + (col >> 1)];
-      if (bumped != ' ') {
-	row -= sy;
-	col -= sx;
-	sx = 0;
-	row += sy;
-	col += sx;
-	bumped = level[(row >> 1) * level_width + (col >> 1)];
-	if (bumped != ' ') {
-	  row -= sy;
-	  col -= sx;
-	}	  
-      }
-      // sx = 0; sy = 0;
+      col -= sx;
+      sx = 0;
     } /* else ' ', just keep walking */
 
     manimation ^= 1;
