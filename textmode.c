@@ -14,11 +14,11 @@ const char *cnorm = "\033[?12l\033[?25h";
 
 const char *level =
   "+-------------+-------------+"
-  "|  *          |             |"
+  "|  *          |>           V|"
   "|         O   |             |"
   "| .           |      ?      |"
   "|        +    |             |"
-  "|    ?        |             |"
+  "|    ?        |A           <|"
   "+-------------+-------------+";
 int level_width = 29;
 int level_height = 7;
@@ -144,6 +144,18 @@ int main(int argc, char **argv) {
       } while (spawned_on != ' ');
     } else if (bumped == '.') {
       /* ignore '.' for now */
+    } else if (bumped == 'A') {
+      sy = -1;
+      sx = 0;
+    } else if (bumped == 'V') {
+      sy = 1;
+      sx = 0;
+    } else if (bumped == '>') {
+      sx = 2;
+      sy = 0;
+    } else if (bumped == '<') {
+      sx = -2;
+      sy = 0;
     } else if (bumped != ' ') {
       row -= sy;
       sy = 0;
