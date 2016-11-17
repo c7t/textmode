@@ -121,16 +121,6 @@ int main(int argc, char **argv) {
 
     bool key_pressed = get_char(&ch, tv);
 
-    if (key_pressed) {
-      switch (ch) {
-      case 'w': sx = 0; sy = -1; break;
-      case 'a': sx = -2; sy = 0; break;
-      case 's': sx = 0; sy = 1; break;
-      case 'd': sx = 2; sy = 0; break;
-      case ' ': sy = -4; break;
-      }
-    }
-
     // Erase protagonist by drawing level
     moveto(row >> 1, col >> 1);
     fputc(level[(row >> 1) * level_width + (col >> 1)], stdout);
@@ -139,7 +129,7 @@ int main(int argc, char **argv) {
     // standing is the character under the character (what the
     // character is standing on)
     char standing = level[((row >> 1) + 1) * level_width + (col >> 1)];
-    moveto(0, 30);
+    moveto(0, level_width + 1);
     print("S: ");
     fputc(standing, stdout);
     switch (standing) {
@@ -147,10 +137,24 @@ int main(int argc, char **argv) {
     case '?': // can fall into a teleporter
     case '.': // go right through '.' even falling
       // apply acceleration by incrementing velocity
-      sy = min(sy+1, max_speed);
+      sy = min(sy+2, max_speed);
       break;
     default: // everything else is solid, no gravity applied
+      if (sy > 0)
+	sy = 0;
       break;
+    }
+
+    if (key_pressed) {
+      switch (ch) {
+      case 'w': sx = 0; sy = -1; break;
+      case 'a': sx = -2; sy = 0; break;
+      case 's': sx = 0; sy = 1; break;
+      case 'd': sx = 2; sy = 0; break;
+      case ' ':
+	// only jump from ground, prevents double jumps
+	if (strchr(" .?", standing) == NULL) sy = -4; break;
+      }
     }
 
     row += sy;
