@@ -14,11 +14,11 @@ const char *cnorm = "\033[?12l\033[?25h";
 
 const char *level =
   "+-------------+-------------+"
-  "|  *          |             |"
-  "|         O   |             |"
-  "| .           |      ?      |"
-  "|        +    |             |"
-  "|    ?        |             |"
+  "|  *       H  |             |"
+  "|         OH  |             |"
+  "| .        H  |      ?      |"
+  "|        + H  |             |"
+  "|    ?     H  |             |"
   "+-------------+-------------+";
 int level_width = 29;
 int level_height = 7;
@@ -125,31 +125,43 @@ int main(int argc, char **argv) {
     moveto(row >> 1, col >> 1);
     fputc(level[(row >> 1) * level_width + (col >> 1)], stdout);
 
+    char on = level[(row >> 1) * level_width + (col >> 1)];
+
     // Gravity!
     // standing is the character under the character (what the
     // character is standing on)
     char standing = level[((row >> 1) + 1) * level_width + (col >> 1)];
+
     moveto(0, level_width + 1);
     print("S: ");
     fputc(standing, stdout);
+
+    moveto(1, level_width + 1);
+    print("O: ");
+    fputc(on, stdout);
+
     switch (standing) {
     case ' ': // unlike Wile E. Coyote, character cannot stand on air
     case '?': // can fall into a teleporter
     case '.': // go right through '.' even falling
-      // apply acceleration by incrementing velocity
-      sy = min(sy+2, max_speed);
+      if (on != 'H') {
+	// apply acceleration by incrementing velocity
+	sy = min(sy+2, max_speed);
+      }
       break;
     default: // everything else is solid, no gravity applied
-      if (sy > 0)
-	sy = 0;
+      if (standing != 'H') { // down is allowed on a ladder
+	if (sy > 0)
+	  sy = 0;
+      }
       break;
     }
 
     if (key_pressed) {
       switch (ch) {
-      case 'w': sx = 0; sy = -1; break;
+      case 'w': if (on == 'H') { sx = 0; sy = -1; } break;
       case 'a': sx = -2; sy = 0; break;
-      case 's': sx = 0; sy = 1; break;
+      case 's': if (on == 'H') { sx = 0; sy = 1; } break;
       case 'd': sx = 2; sy = 0; break;
       case ' ':
 	// only jump from ground, prevents double jumps
@@ -173,6 +185,8 @@ int main(int argc, char **argv) {
       } while (spawned_on != ' ');
     } else if (bumped == '.') {
       /* ignore '.' for now */
+    } else if (bumped == 'H') {
+      /* you can walk through a ladder */
     } else if (bumped != ' ') {
       row -= sy;
       sy = 0;
