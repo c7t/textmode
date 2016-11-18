@@ -47,7 +47,7 @@ int term_set_raw(int fd, struct termios *term) {
 
   if (tcgetattr(fd, term) != 0)
     return -1;
-  
+
   memcpy(&raw, term, sizeof(raw));
   cfmakeraw(&raw);
 
@@ -66,14 +66,17 @@ int term_restore(int fd, struct termios *term) {
    key is pressed in time, the key is returned in 'ch' and get_char()
    returns true.  Otherwise get_char() returns false. */
 bool get_char(int *ch, struct timeval tv) {
-    fd_set rfds;
-    int retval;
+  int character = -1;
+  fd_set rfds;
+  int retval;
 
-    FD_ZERO(&rfds);
-    FD_SET(fileno(stdin), &rfds);
+  FD_ZERO(&rfds);
+  FD_SET(fileno(stdin), &rfds);
 
-    // first wait for the full specified time, ignoring input
-    retval = select(0, NULL, NULL, NULL, &tv);
+  // first wait for the full specified time, ignoring input
+  retval = select(0, NULL, NULL, NULL, &tv);
+
+  for (;;) {
     // now poll for any input, without waiting
     tv.tv_sec = 0;
     tv.tv_usec = 0;
@@ -82,10 +85,13 @@ bool get_char(int *ch, struct timeval tv) {
     if (retval == -1)
       perror("select()");
     else if (retval) {
-      *ch = getchar();
-    }
-
-    return retval > 0;
+      character = getchar();
+    } else
+      break;
+  }
+  if (character != -1)
+    *ch = character;
+  return character != -1;
 }
 
 
@@ -212,7 +218,7 @@ int main(int argc, char **argv) {
 
 /*
 
- xX 
+ xX
 --x---
 
 */
