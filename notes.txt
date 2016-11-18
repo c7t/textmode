@@ -1,0 +1,15 @@
+want a single character of buffer
+
+want to clear out all but last character per frame
+
+pqdb
+
+cCcCcCcC
+
+---
+
+bugs:
+  - can't queue keypress
+  - jump up through floors
+  - hit head on ceiling stops you
+  - nice to push down to stop
