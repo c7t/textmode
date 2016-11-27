@@ -30,6 +30,7 @@ int walk_sx;
 int walk_sy;
 int climb_s;
 int jump_s;
+int animate_s;
 
 static const int fp_shift = 4;
 
@@ -112,12 +113,13 @@ bool get_char(int *ch, struct timeval tv) {
 
 
 int main(int argc, char **argv) {
-  max_speed = tofp(1);
-  gravity = tofp(1);
-  walk_sx = tofp(1);
-  walk_sy = tofp(1) / tofp(2);
-  climb_s = tofp(1);
-  jump_s = tofp(2);
+  max_speed = tofp(1) / 2;
+  gravity = tofp(1) / 4;
+  walk_sx = tofp(1) / 2;
+  walk_sy = tofp(1) / 4;
+  climb_s = tofp(1) / 2;
+  jump_s = tofp(1);
+  animate_s = tofp(1) / 2;
 
   int i = 0;
 
@@ -141,12 +143,12 @@ int main(int argc, char **argv) {
   int row = tofp(level_height / 2), col = tofp(level_width / 2 - 1);
   int sx = walk_sx, sy = walk_sy;
 
-  int manimation = 0;
+  int manimation = tofp(0);
 
   while (true) {
     struct timeval tv;
     tv.tv_sec = 0;
-    tv.tv_usec = 1000000 / 15; /* 15 FPS */
+    tv.tv_usec = 1000000 / 30; /* 30 FPS */
 
     bool key_pressed = get_char(&ch, tv);
 
@@ -188,7 +190,7 @@ int main(int argc, char **argv) {
 
     if (key_pressed) {
       switch (ch) {
-      case 'w': if (on == 'H') { sx = tofp(0); sy = climb_s; } break;
+      case 'w': if (on == 'H') { sx = tofp(0); sy = -climb_s; } break;
       case 'a': sx = -walk_sx; sy = tofp(0); break;
       case 's': if (on == 'H') { sx = tofp(0); sy = climb_s; } break;
       case 'd': sx = walk_sx; sy = tofp(0); break;
@@ -223,10 +225,10 @@ int main(int argc, char **argv) {
       sx = tofp(0);
     } /* else ' ', just keep walking */
 
-    manimation ^= 1;
+    manimation += animate_s;
 
     moveto(fp(row), fp(col));
-    print(manimation ? "C" : "c");
+    print(fp(manimation) & 1 ? "C" : "c");
 
     if (ch == 'q')
       break;
