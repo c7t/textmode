@@ -13,3 +13,25 @@ bugs:
   - can't queue keypress
   - hit head on ceiling stops you
   x nice to push down to stop
+
+---
+
+gags/ripoffs
+
+ - asteroids
+ - mario -> character eats mushroom, goes from 'c' to 'C'
+ - vvvvvv - switch gravity
+ - ladder / donkey kong
+ - catchum / pacman
+ - downwell - rocket boots, falling (needs scrolling, level generation...maybe)
+ - bolo, tanks
+ - micromachines - scrolling
+ - witness - preachy public domain text for no reason (bear-witness.txt)
+
+---
+
+bling
+
+transitions/fades
+level modification - worms terrain, etc.
+enemy swarms/particles
