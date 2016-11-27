@@ -23,7 +23,13 @@ const char *level =
 int level_width = 29;
 int level_height = 7;
 
+// Speed constants
 int max_speed;
+int gravity;
+int walk_sx;
+int walk_sy;
+int climb_s;
+int jump_s;
 
 static const int fp_shift = 4;
 
@@ -107,6 +113,11 @@ bool get_char(int *ch, struct timeval tv) {
 
 int main(int argc, char **argv) {
   max_speed = tofp(1);
+  gravity = tofp(1);
+  walk_sx = tofp(1);
+  walk_sy = tofp(1) / tofp(2);
+  climb_s = tofp(1);
+  jump_s = tofp(2);
 
   int i = 0;
 
@@ -128,7 +139,7 @@ int main(int argc, char **argv) {
   }
 
   int row = tofp(level_height / 2), col = tofp(level_width / 2 - 1);
-  int sx = tofp(1) / tofp(1), sy = tofp(1) / tofp(2);
+  int sx = walk_sx, sy = walk_sy;
 
   int manimation = 0;
 
@@ -164,7 +175,7 @@ int main(int argc, char **argv) {
     case '.': // go right through '.' even falling
       if (on != 'H') {
 	// apply acceleration by incrementing velocity
-	sy = min(sy+tofp(1), max_speed);
+	sy = min(sy + gravity, max_speed);
       }
       break;
     default: // everything else is solid, no gravity applied
@@ -177,13 +188,13 @@ int main(int argc, char **argv) {
 
     if (key_pressed) {
       switch (ch) {
-      case 'w': if (on == 'H') { sx = tofp(0); sy = tofp(-1) / tofp(2); } break;
-      case 'a': sx = tofp(-1); sy = tofp(0); break;
-      case 's': if (on == 'H') { sx = tofp(0); sy = tofp(1) / tofp(2); } break;
-      case 'd': sx = tofp(1); sy = tofp(0); break;
+      case 'w': if (on == 'H') { sx = tofp(0); sy = climb_s; } break;
+      case 'a': sx = -walk_sx; sy = tofp(0); break;
+      case 's': if (on == 'H') { sx = tofp(0); sy = climb_s; } break;
+      case 'd': sx = walk_sx; sy = tofp(0); break;
       case ' ':
 	// only jump from ground, prevents double jumps
-	if (strchr(" .?", standing) == NULL) sy = tofp(-2); break;
+	if (strchr(" .?", standing) == NULL) sy = -jump_s; break;
       }
     }
 
