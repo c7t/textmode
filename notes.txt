@@ -9,7 +9,7 @@ cCcCcCcC
 ---
 
 bugs:
+  x jump up through floors
   - can't queue keypress
-  - jump up through floors
   - hit head on ceiling stops you
-  - nice to push down to stop
+  x nice to push down to stop

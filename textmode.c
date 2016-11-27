@@ -190,9 +190,9 @@ int main(int argc, char **argv) {
 
     if (key_pressed) {
       switch (ch) {
-      case 'w': if (on == 'H') { sx = tofp(0); sy = -climb_s; } break;
+      case 'w': sx = tofp(0); if (on == 'H') { sy = -climb_s; } break;
       case 'a': sx = -walk_sx; sy = tofp(0); break;
-      case 's': if (on == 'H') { sx = tofp(0); sy = climb_s; } break;
+      case 's': sx = tofp(0); if (on == 'H') { sy = climb_s; } break;
       case 'd': sx = walk_sx; sy = tofp(0); break;
       case ' ':
 	// only jump from ground, prevents double jumps
