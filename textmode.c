@@ -23,7 +23,17 @@ const char *level =
 int level_width = 29;
 int level_height = 7;
 
-int max_speed = 2;
+int max_speed;
+
+static const int fp_shift = 4;
+
+static inline int tofp(int a) {
+  return a << fp_shift;
+}
+
+static inline int fp(int a) {
+  return a >> fp_shift;
+}
 
 static inline int min(int a, int b) {
   return a < b ? a : b;
@@ -96,6 +106,8 @@ bool get_char(int *ch, struct timeval tv) {
 
 
 int main(int argc, char **argv) {
+  max_speed = tofp(1);
+
   int i = 0;
 
   setbuf(stdin, NULL);
@@ -115,8 +127,8 @@ int main(int argc, char **argv) {
     printn(level + row * level_width, level_width);
   }
 
-  int row = (level_height / 2) << 1, col =  (level_width / 2 - 1) << 1;
-  int sx = 2, sy = 1;
+  int row = tofp(level_height / 2), col = tofp(level_width / 2 - 1);
+  int sx = tofp(1) / tofp(1), sy = tofp(1) / tofp(2);
 
   int manimation = 0;
 
@@ -128,15 +140,15 @@ int main(int argc, char **argv) {
     bool key_pressed = get_char(&ch, tv);
 
     // Erase protagonist by drawing level
-    moveto(row >> 1, col >> 1);
-    fputc(level[(row >> 1) * level_width + (col >> 1)], stdout);
+    moveto(fp(row), fp(col));
+    fputc(level[fp(row) * level_width + fp(col)], stdout);
 
-    char on = level[(row >> 1) * level_width + (col >> 1)];
+    char on = level[fp(row) * level_width + fp(col)];
 
     // Gravity!
     // standing is the character under the character (what the
     // character is standing on)
-    char standing = level[((row >> 1) + 1) * level_width + (col >> 1)];
+    char standing = level[(fp(row) + 1) * level_width + fp(col)];
 
     moveto(0, level_width + 1);
     print("S: ");
@@ -152,26 +164,26 @@ int main(int argc, char **argv) {
     case '.': // go right through '.' even falling
       if (on != 'H') {
 	// apply acceleration by incrementing velocity
-	sy = min(sy+2, max_speed);
+	sy = min(sy+tofp(1), max_speed);
       }
       break;
     default: // everything else is solid, no gravity applied
       if (standing != 'H') { // down is allowed on a ladder
-	if (sy > 0)
-	  sy = 0;
+	if (sy > tofp(0))
+	  sy = tofp(0);
       }
       break;
     }
 
     if (key_pressed) {
       switch (ch) {
-      case 'w': if (on == 'H') { sx = 0; sy = -1; } break;
-      case 'a': sx = -2; sy = 0; break;
-      case 's': if (on == 'H') { sx = 0; sy = 1; } break;
-      case 'd': sx = 2; sy = 0; break;
+      case 'w': if (on == 'H') { sx = tofp(0); sy = tofp(-1) / tofp(2); } break;
+      case 'a': sx = tofp(-1); sy = tofp(0); break;
+      case 's': if (on == 'H') { sx = tofp(0); sy = tofp(1) / tofp(2); } break;
+      case 'd': sx = tofp(1); sy = tofp(0); break;
       case ' ':
 	// only jump from ground, prevents double jumps
-	if (strchr(" .?", standing) == NULL) sy = -4; break;
+	if (strchr(" .?", standing) == NULL) sy = tofp(-2); break;
       }
     }
 
@@ -179,15 +191,15 @@ int main(int argc, char **argv) {
     col += sx;
 
     /* Collision detection! */
-    char bumped = level[(row >> 1) * level_width + (col >> 1)];
+    char bumped = level[fp(row) * level_width + fp(col)];
     if (bumped == '?') {
       char spawned_on;
       do {
 	row = random() % level_height;
 	col = random() % level_width;
 	spawned_on = level[row * level_width + col];
-	row <<= 1;
-	col <<= 1;
+	row = tofp(row);
+	col = tofp(col);
       } while (spawned_on != ' ');
     } else if (bumped == '.') {
       /* ignore '.' for now */
@@ -195,14 +207,14 @@ int main(int argc, char **argv) {
       /* you can walk through a ladder */
     } else if (bumped != ' ') {
       row -= sy;
-      sy = 0;
+      sy = tofp(0);
       col -= sx;
-      sx = 0;
+      sx = tofp(0);
     } /* else ' ', just keep walking */
 
     manimation ^= 1;
 
-    moveto(row >> 1, col >> 1);
+    moveto(fp(row), fp(col));
     print(manimation ? "C" : "c");
 
     if (ch == 'q')
