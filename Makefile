@@ -1,2 +1,2 @@
-CFLAGS=--std=c99
+CFLAGS=--std=c11
 textmode:

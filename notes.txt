@@ -9,9 +9,10 @@ cCcCcCcC
 ---
 
 bugs:
-  x jump up through floors
+  - standing on ladder (but not 'on' ladder) == can't descend
   - can't queue keypress
   - hit head on ceiling stops you
+  x jump up through floors
   x nice to push down to stop
 
 ---
@@ -24,6 +25,7 @@ gags/ripoffs
  - ladder / donkey kong
  - catchum / pacman
  - downwell - rocket boots, falling (needs scrolling, level generation...maybe)
+ - flappy bird
  - bolo, tanks
  - micromachines - scrolling
  - witness - preachy public domain text for no reason (bear-witness.txt)
@@ -35,3 +37,33 @@ bling
 transitions/fades
 level modification - worms terrain, etc.
 enemy swarms/particles
+
+---
+
+ideas
+
+some sort of escalation of enemies to the point that they stop being
+singletons and start to act like a mass that flows and fills the level
+and you can start to climb the pile to escape
+
+---
+
+progression
+
+cheesy text crawl with starfield (maybe with cursor to look even more
+kindergarten) bookended with actual 3D starfiled that
+
+moving only on key input (rogue) -> moving continuously
+
+no gravity -> gravity
+
+fixed screens -> scrolling
+
+static level -> enemies
+
+moving -> shooting -> ... crafting ... inventory ... -> talking
+
+---
+
+thoughts...needs actual story, writing, design, human element, fun
+gameplay, mostly just a demoscene/tech demo for some dubious tech.

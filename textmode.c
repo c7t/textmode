@@ -12,16 +12,27 @@ const char *clear = "\x1b[H\x1b[2J";
 const char *civis = "\033[?25l";
 const char *cnorm = "\033[?12l\033[?25h";
 
-const char *level =
+const char level_data[] =
   "+---------------------------+"
   "|  *       H                |"
   "|         OH===             |"
   "| .        H                |"
   "|        + H   ===       +--+"
   "|    ?     H             | ?|"
+  "|   ===========H         | H|"
+  "|              H         | H|"
+  "|              H         | H|"
+  "|              H         | H|"
+  "|              H         | H|"
+  "|              H         | H|"
   "+------------------------+--+";
-int level_width = 29;
-int level_height = 7;
+
+enum {
+  level_width = 29,
+  level_height = sizeof(level_data)/level_width,
+  spawn_row = level_height - 2,
+  spawn_col = 1
+};
 
 // Speed constants
 int max_speed;
@@ -46,6 +57,14 @@ static inline int min(int a, int b) {
   return a < b ? a : b;
 }
 
+static char level(int row, int col) {
+  return level_data[row * level_width + col];
+}
+
+static char levelfp(int fp_row, int fp_col) {
+  return level(fp(fp_row), fp(fp_col));
+}
+
 void moveto(int row, int col) {
   printf("\033[%d;%dH", row+1, col+1);
 }
@@ -56,6 +75,13 @@ void print(const char *str) {
 
 void printn(const char *str, size_t n) {
   fwrite(str, n, 1, stdout);
+}
+
+static void draw_level() {
+  for (int row = 0; row < level_height; row++) {
+    moveto(row, 0);
+    printn(&level_data[row * level_width], level_width);
+  }
 }
 
 int term_set_raw(int fd, struct termios *term) {
@@ -135,12 +161,9 @@ int main(int argc, char **argv) {
   print(clear);
   print(civis);
 
-  for (int row = 0; row < level_height; row++) {
-    moveto(row, 0);
-    printn(level + row * level_width, level_width);
-  }
+  draw_level();
 
-  int row = tofp(level_height / 2), col = tofp(level_width / 2 - 1);
+  int row = tofp(spawn_row), col = tofp(spawn_col);
   int sx = walk_sx, sy = walk_sy;
 
   int manimation = tofp(0);
@@ -154,14 +177,14 @@ int main(int argc, char **argv) {
 
     // Erase protagonist by drawing level
     moveto(fp(row), fp(col));
-    fputc(level[fp(row) * level_width + fp(col)], stdout);
+    fputc(levelfp(row, col), stdout);
 
-    char on = level[fp(row) * level_width + fp(col)];
+    char on = levelfp(row, col);
 
     // Gravity!
     // standing is the character under the character (what the
     // character is standing on)
-    char standing = level[(fp(row) + 1) * level_width + fp(col)];
+    char standing = levelfp(row+tofp(1), col);
 
     moveto(0, level_width + 1);
     print("S: ");
@@ -204,13 +227,13 @@ int main(int argc, char **argv) {
     col += sx;
 
     /* Collision detection! */
-    char bumped = level[fp(row) * level_width + fp(col)];
+    char bumped = levelfp(row, col);
     if (bumped == '?') {
       char spawned_on;
       do {
 	row = random() % level_height;
 	col = random() % level_width;
-	spawned_on = level[row * level_width + col];
+	spawned_on = level(row, col);
 	row = tofp(row);
 	col = tofp(col);
       } while (spawned_on != ' ');
