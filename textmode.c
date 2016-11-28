@@ -157,6 +157,8 @@ int main(int argc, char **argv) {
   term_set_raw(fileno(stdout), &out_term);
 
   int ch = 0;
+  int buffer = 0;
+  bool buffered = false;
 
   print(clear);
   print(civis);
@@ -212,14 +214,24 @@ int main(int argc, char **argv) {
     }
 
     if (key_pressed) {
-      switch (ch) {
-      case 'w': sx = tofp(0); if (on == 'H') { sy = -climb_s; } break;
-      case 'a': sx = -walk_sx; sy = tofp(0); break;
-      case 's': sx = tofp(0); if (standing == 'H') { sy = climb_s; } break;
-      case 'd': sx = walk_sx; sy = tofp(0); break;
+      buffered = true;
+      buffer = ch;
+    }
+
+    if (buffered) {
+      switch (buffer) {
+      case 'w':
+	if (on == 'H') { sx = tofp(0); sy = -climb_s; buffered = false;	}
+	break;
+      case 'a': sx = -walk_sx; sy = tofp(0); buffered = false; break;
+      case 's':
+	if (standing == 'H') { sx = tofp(0); sy = climb_s; buffered = false; }
+	break;
+      case 'd': sx = walk_sx; sy = tofp(0); buffered = false; break;
       case ' ':
 	// only jump from ground, prevents double jumps
-	if (strchr(" .?", standing) == NULL) sy = -jump_s; break;
+	if (strchr(" .?", standing) == NULL) { sy = -jump_s; buffered = false; }
+	break;
       }
     }
 

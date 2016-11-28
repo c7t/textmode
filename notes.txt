@@ -65,5 +65,12 @@ moving -> shooting -> ... crafting ... inventory ... -> talking
 
 ---
 
-thoughts...needs actual story, writing, design, human element, fun
+thoughts
+
+...needs actual story, writing, design, human element, fun
 gameplay, mostly just a demoscene/tech demo for some dubious tech.
+
+...scope: one week of stolen hours is not much at all, need to
+prioritize exactly what needs to be done.
+
+---
