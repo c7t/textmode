@@ -275,10 +275,3 @@ int main(int argc, char **argv) {
   term_restore(fileno(stdin), &in_term);
   return 0;
 }
-
-/*
-
- xX
---x---
-
-*/
