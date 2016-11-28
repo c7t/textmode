@@ -215,7 +215,7 @@ int main(int argc, char **argv) {
       switch (ch) {
       case 'w': sx = tofp(0); if (on == 'H') { sy = -climb_s; } break;
       case 'a': sx = -walk_sx; sy = tofp(0); break;
-      case 's': sx = tofp(0); if (on == 'H') { sy = climb_s; } break;
+      case 's': sx = tofp(0); if (standing == 'H') { sy = climb_s; } break;
       case 'd': sx = walk_sx; sy = tofp(0); break;
       case ' ':
 	// only jump from ground, prevents double jumps

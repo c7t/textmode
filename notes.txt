@@ -9,9 +9,9 @@ cCcCcCcC
 ---
 
 bugs:
-  - standing on ladder (but not 'on' ladder) == can't descend
   - can't queue keypress
   - hit head on ceiling stops you
+  x standing on ladder (but not 'on' ladder) == can't descend
   x jump up through floors
   x nice to push down to stop
 
